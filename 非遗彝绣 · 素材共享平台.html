@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>诺苏非遗彝绣纹样数据库</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* flex布局 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: url('https://s41.ax1x.com/2026/03/22/peuGjnU.jpg') center center / cover fixed no-repeat;
+            color: #2C241A;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#EADBCB 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: rgba(31, 25, 21, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 0.8rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #C23B22;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            gap: 1rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #F9E0A0;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+        }
+        .logo small {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: #E5B56A;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links li a {
+            color: #F2E3D0;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.5rem 0;
+            transition: 0.25s;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        .nav-links li a:hover, .nav-links li a.active {
+            border-bottom-color: #D9532E;
+            color: #FFE0A3;
+        }
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255,245,230,0.2);
+            backdrop-filter: blur(4px);
+            border-radius: 60px;
+            padding: 0.2rem 0.2rem 0.2rem 1rem;
+            border: 1px solid rgba(217, 83, 46, 0.5);
+        }
+        .search-input {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            color: #FCE9D0;
+            outline: none;
+            width: 180px;
+            transition: 0.2s;
+        }
+        .search-input::placeholder {
+            color: #C9AF8B;
+        }
+        .search-input:focus {
+            width: 220px;
+        }
+        .search-btn {
+            background: #D9431F;
+            border: none;
+            padding: 0.45rem 1rem;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-btn:hover {
+            background: #B03212;
+        }
+
+        .login-btn {
+            background: #D9431F;
+            border: none;
+            padding: 0.45rem 1.4rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #FFF5E6;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        .login-btn:hover {
+            background: #B03212;
+            transform: scale(0.98);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 2rem 3rem;
+            flex: 1;  /* 让主区域撑开 */
+        }
+
+        /* 页面切换 */
+        .page {
+            display: none;
+            animation: fadeUp 0.4s ease-out;
+        }
+        .active-page {
+            display: block;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 首页文案区域 */
+        .hero-text {
+            background: rgba(255, 248, 240, 0.85);
+            backdrop-filter: blur(3px);
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            border: 1px solid rgba(240, 224, 207, 0.8);
+            line-height: 1.7;
+            font-size: 1.05rem;
+            margin-bottom: 2rem;
+        }
+        .color-swatch {
+            display: flex;
+            gap: 1.2rem;
+            margin: 1.5rem 0 0.5rem;
+            flex-wrap: wrap;
+        }
+        .swatch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .swatch span:first-child {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .black-swatch { background: #2D241E; }
+        .red-swatch { background: #C23B22; }
+        .gold-swatch { background: #E6B45E; }
+
+        /* 统一的卡片样式 */
+        .featured-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 1.8rem;
+            color: #FCF5E8;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .featured-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 2px;
+            background: #C23B22;
+            margin: 0.5rem auto 0;
+        }
+
+        /* 核心网格 */
+        .unified-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 0.5rem;
+        }
+
+        /* 响应式*/
+        @media (max-width: 1200px) {
+            .unified-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        /* 单列 */
+        @media (max-width: 640px) {
+            .unified-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 所有纹样卡片的基础样式 */
+        .pattern-card-base {
+            background: rgba(255, 255, 245, 0.88);
+            backdrop-filter: blur(2px);
+            border-radius: 1.8rem;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 12px 24px -12px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: 1px solid rgba(240, 224, 207, 0.6);
+            display: flex;
+            flex-direction: column;
+        }
+        .pattern-card-base:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.3);
+            border-color: #DAB27C;
+            background: rgba(255, 255, 248, 0.96);
+        }
+        .card-visual-area {
+            background: linear-gradient(145deg, #FEF6EC, #F8E9DB);
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .card-visual-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .pattern-card-base:hover .card-visual-area img {
+            transform: scale(1.03);
+        }
+        .card-visual-area i {
+            font-size: 3.5rem;
+            color: #B85A34;
+        }
+        .card-info {
+            padding: 1.4rem 1.2rem 1.2rem;
+            flex: 1;
+        }
+        .card-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #862D16;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.2px;
+        }
+        .card-elements {
+            font-size: 0.8rem;
+            color: #9A6A4B;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .card-meaning {
+            font-size: 0.85rem;
+            color: #5C3E2A;
+            line-height: 1.4;
+            font-style: italic;
+            border-top: 1px dashed #EFDDCE;
+            padding-top: 0.8rem;
+            margin-top: 0.4rem;
+        }
+        .download-btn-sm {
+            background: #FCF3E8;
+            border: 1px solid #D9B48B;
+            color: #AA4A2C;
+            padding: 0.35rem 0.9rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 0.8rem;
+        }
+        .download-btn-sm:hover {
+            background: #EAD5BE;
+            border-color: #BC734C;
+        }
+
+        /* 核心页搜索反馈条 - 半透明 */
+        .search-feedback {
+            background: rgba(246, 237, 227, 0.9);
+            backdrop-filter: blur(4px);
+            border-radius: 60px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .clear-search {
+            background: #EAD0BA;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .clear-search:hover {
+            background: #D9B48B;
+        }
+
+        /* 详情页样式 - 半透明效果 */
+        .detail-container {
+            background: rgba(255, 255, 245, 0.92);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+            display: flex;
+            flex-wrap: wrap;
+            border: 1px solid rgba(240, 224, 207, 0.8);
+        }
+        .detail-visual {
+            flex: 1.2;
+            background: #F8EDE2;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .detail-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .detail-visual i {
+            font-size: 6rem;
+            color: #BA5A38;
+        }
+        .detail-info {
+            flex: 2;
+            padding: 2rem;
+        }
+        .detail-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #862D16;
+        }
+        .detail-meta {
+            margin: 1rem 0;
+            border-top: 1px solid #EAD8C8;
+            padding-top: 1rem;
+        }
+        .detail-label {
+            font-weight: 700;
+            color: #BB5C3C;
+            margin-right: 0.8rem;
+        }
+        .placeholder-detail {
+            text-align: center;
+            padding: 3rem;
+            color: #AA7E62;
+            background: rgba(252, 246, 239, 0.9);
+            border-radius: 2rem;
+            width: 100%;
+        }
+
+        /* 辅助页卡片 */
+        .apply-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .apply-card {
+            background: rgba(255, 255, 245, 0.88);
+            backdrop-filter: blur(2px);
+            border-radius: 1.6rem;
+            overflow: hidden;
+            transition: all 0.2s;
+            border: 1px solid #F0E2D2;
+            text-align: center;
+            cursor: pointer;
+        }
+        .apply-icon {
+            background: #F2E3D4;
+            padding: 2rem;
+            font-size: 2.5rem;
+            color: #B25633;
+        }
+        .apply-text {
+            padding: 1.2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-card {
+            background: #FFFBF5;
+            max-width: 360px;
+            width: 90%;
+            border-radius: 2rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+        }
+        .modal-card input {
+            width: 100%;
+            margin: 0.6rem 0;
+            padding: 0.7rem 1rem;
+            border: 1px solid #DDC9B4;
+            border-radius: 3rem;
+            font-size: 0.9rem;
+        }
+        .modal-btn {
+            background: #C23B22;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 3rem;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        footer {
+            background: rgba(31, 25, 21, 0.85);
+            backdrop-filter: blur(8px);
+            color: #D9C2A8;
+            text-align: center;
+            padding: 1.8rem;
+            font-size: 0.8rem;
+            width: 100%;
+            margin-top: auto;
+        }
+        @media (max-width: 860px) {
+            .navbar { flex-direction: column; align-items: stretch; }
+            .search-wrapper { width: 100%; justify-content: space-between; }
+            .search-input { flex: 1; }
+            .nav-links { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo-area">
+        <span class="logo">诺苏非遗彝绣纹样数据库</span>
+        <small></small>
+    </div>
+    <ul class="nav-links">
+        <li><a href="#" data-page="home" class="nav-link active">首页</a></li>
+        <li><a href="#" data-page="core" class="nav-link">核心页</a></li>
+        <li><a href="#" data-page="detail" class="nav-link">详情页</a></li>
+        <li><a href="#" data-page="aux" class="nav-link">辅助页</a></li>
+    </ul>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+        <div class="search-wrapper">
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="搜索纹样名称、元素或寓意...">
+            <button id="globalSearchBtn" class="search-btn"><i class="fas fa-search"></i> 搜索</button>
+        </div>
+        <button class="login-btn" id="showLoginBtn"><i class="fas fa-user-astronaut"></i> 登录</button>
+    </div>
+</nav>
+
+<div class="main-container">
+    <!-- 首页 -->
+    <div id="homePage" class="page active-page">
+        <div class="hero-text">
+            <div class="page-title" style="border-left-color:#C23B22; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 2.2rem;">非遗彝绣 · 穿在身上的史书</div>
+            <p>非遗彝绣，是彝族人民“穿在身上的史书”，2008年列入国家级非物质文化遗产。其艺术根植于古老的宇宙观，以“黑、红、黄”为核心色谱：庄重的黑象征大地与根基，炽烈的红代表生命之火与吉祥，明亮的黄寓意太阳、光明与丰饶。这三种源自自然的色彩，构成了彝绣厚重、热烈而神秘的视觉基调。</p>
+            <div class="color-swatch">
+                <div class="swatch"><span class="black-swatch"></span><span>大地 · 黑</span></div>
+                <div class="swatch"><span class="red-swatch"></span><span>生命之火 · 红</span></div>
+                <div class="swatch"><span class="gold-swatch"></span><span>太阳丰饶 · 黄</span></div>
+            </div>
+            <p style="margin-top: 1rem;">纹样是民族记忆的密码。螺旋的羊角纹祈求富足与繁衍，绽放的索玛花纹赞颂自然与美丽，升腾的火把纹承载着驱邪纳福的节日精神。日月山河、花草藤蔓皆被提炼为高度程式化的几何与自然图案，一针一线间蕴藏着万物有灵的哲学。</p>
+            <p>技艺上，绣娘融汇平绣、盘金绣、打籽绣、贴布绣等十余种技法。盘金绣勾勒出璀璨轮廓，打籽绣形成致密耐磨饱满的绚丽效果，是彝族文化、信仰与审美智慧的集中体现。</p>
+        </div>
+        <div>
+            <div class="featured-title">经典纹样 · 灵韵之魂</div>
+            <div id="featuredGrid" class="unified-grid"></div>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #FEF0E0; text-shadow: 0 1px 2px rgba(0,0,0,0.3);"><i class="fas fa-fingerprint"></i> 点击任意纹样，探秘完整寓意与使用场景</p>
+        </div>
+    </div>
+
+    <!-- 核心页 -->
+    <div id="corePage" class="page">
+        <div class="page-title" style="font-family: 'Cormorant Garamond', serif; color: #FCF5E8; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">🔥 核心纹样库 · 活态传承</div>
+        <div id="searchFeedbackArea" class="search-feedback" style="display: none;">
+            <span id="searchKeywordSpan"></span>
+            <button id="clearSearchBtn" class="clear-search"><i class="fas fa-times"></i> 清除筛选</button>
+        </div>
+        <div id="patternGrid" class="unified-grid"></div>
+        <p style="text-align: center; margin-top: 2rem; font-size: 0.85rem; color:#FEF0E0; text-shadow: 0 1px 2px rgba(0,0,0,0.3);"><i class="fas fa-embroidery-hoop"></i> 点击卡片查看详情，跳转至详情页获取完整信息</p>
+    </div>
+
+    <!-- 详情页 -->
+    <div id="detailPage" class="page">
+        <div class="page-title" style="font-family: 'Cormorant Garamond', serif; color: #FCF5E8; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">📖 纹样详析 · 灵韵密码</div>
+        <div id="detailContent" class="detail-container">
+            <div class="placeholder-detail">
+                <i class="fas fa-hand-point-right fa-2x"></i>
+                <p style="margin-top: 0.8rem;">请在「核心页」或首页「经典纹样」点击任意纹样卡片，查看完整寓意、元素构成及应用场景。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 辅助页 -->
+    <div id="auxPage" class="page">
+        <div class="page-title" style="font-family: 'Cormorant Garamond', serif; color: #FCF5E8; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">✨ 纹样运用库 · 非遗新生</div>
+        <div class="apply-grid">
+            <div class="apply-card"><div class="apply-icon"><i class="fas fa-tshirt"></i></div><div class="apply-text">彝风时装 · 国际秀场</div></div>
+            <div class="apply-card"><div class="apply-icon"><i class="fas fa-home"></i></div><div class="apply-text">家居织物 · 刺绣靠垫</div></div>
+            <div class="apply-card"><div class="apply-icon"><i class="fas fa-book"></i></div><div class="apply-text">文化文具 · 纹样手账</div></div>
+            <div class="apply-card"><div class="apply-icon"><i class="fas fa-gift"></i></div><div class="apply-text">旅游文创 · 银饰绣片</div></div>
+            <div class="apply-card"><div class="apply-icon"><i class="fas fa-ad"></i></div><div class="apply-text">品牌联名 · 数字藏品</div></div>
+        </div>
+        <div style="margin-top: 2rem; background: rgba(254, 243, 230, 0.9); backdrop-filter: blur(4px); border-radius: 1.6rem; padding: 1.5rem;">
+            <i class="fas fa-quote-left" style="color:#B85A34;"></i> 将索玛花纹样、羊角纹样、火把纹样等融入服饰、配饰等现代生活器物，让古老纹样在日常中焕发新生，非遗从此触手可及。所有纹样均已实现版权保护，支持授权合作。
+            <div style="margin-top: 12px;"><span class="download-btn-sm" style="background:#D9431F; color:white; border:none;"><i class="fas fa-download"></i> 商业合作申请</span></div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    诺苏非遗彝绣纹样数据库 | 守护千年指尖技艺 | 数据源于彝绣星河团队
+</footer>
+
+<div id="loginModal" class="modal">
+    <div class="modal-card">
+        <i class="fas fa-feather-alt" style="font-size: 2.4rem; color:#BF5A38;"></i>
+        <h3 style="margin: 0.5rem 0;">传承人登录</h3>
+        <input type="text" id="loginUser" placeholder="昵称 / 手机号">
+        <input type="password" id="loginPwd" placeholder="密码">
+        <button id="doLoginBtn" class="modal-btn">进入纹样宇宙</button>
+        <button id="closeModalBtn" class="modal-btn" style="background:#B29A80; margin-top: 0.5rem;">关闭</button>
+        <p style="font-size:0.7rem; margin-top:0.7rem;">体验非遗数据库，探索彝绣之美</p>
+    </div>
+</div>
+
+<script>
+    // 纹样数据
+    const patterns = [
+        {
+            id:1,
+            name:"索玛花纹",
+            elements:"多瓣式、重瓣式、卷叶式、对生式",
+            scene:"广泛用于婚庆服饰、家居刺绣与头饰，常见于女性盛装的衣襟、裙摆与背带",
+            meaning:"象征生命、美丽与吉祥，承载着对幸福、美满与生生不息的祝福",
+            imgUrl:"https://s41.ax1x.com/2026/03/21/pen50yV.webp",
+            faIcon:"flower"
+        },
+        {
+            id:2,
+            name:"羊角纹",
+            elements:"双螺旋涡旋式，四瓣花/火舌式，对称几何式，曲线层叠式",
+            scene:"广泛用于彝族传统服饰、生活织物及现代文创产品中，是婚礼、火把节等重要节庆场合的核心装饰纹样",
+            meaning:"象征财富富足、吉祥纳福，承载着对生命繁衍、家族兴旺的祈愿",
+            imgUrl:"https://s41.ax1x.com/2026/03/21/pen5j6P.jpg",
+            faIcon:"horn"
+        },
+        {
+            id:3,
+            name:"火焰纹",
+            elements:"旋涡式、羊角式、三叉式、山形状",
+            scene:"广泛用于图腾纹样中，常见于节庆服饰与装饰上，彝族祭拜火神，祈求丰收的重要节日",
+            meaning:"象征热情，净化与希望，承载着祈福与繁荣的寓意",
+            imgUrl:"https://s41.ax1x.com/2026/03/21/penICkQ.jpg",
+            faIcon:"fire"
+        },
+        {
+            id:4,
+            name:"窗格纹",
+            elements:"以方形、菱形、十字交叉等几何图形为主",
+            scene:"民居窗棂、堂屋隔断等建筑装饰，柜门、箱匣等家具，衣领袖口等服饰刺绣，节庆祭祀用的剪纸或法器",
+            meaning:"家宅平安，和谐秩序，生生不息，天地相通",
+            imgUrl:"https://s41.ax1x.com/2026/03/21/penouKP.jpg",
+            faIcon:"border-all"
+        },
+        {
+            id:5,
+            name:"牛角纹",
+            elements:"单螺旋涡旋式，粗犷折线式，对称几何式，宽幅层叠式",
+            scene:"广泛用于彝族传统服饰、察尔瓦、生活特包及祭祀用品中",
+            meaning:"象征勤劳坚韧、力量与守护，承载着五谷丰登、六畜兴旺、家族繁衍的祈愿",
+            imgUrl:"https://s41.ax1x.com/2026/03/21/penoMb8.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:6,
+            name:"太阳纹",
+            elements:"中心放射式圆轮，火焰状尖角向外延展，四瓣花与卷云纹点缀，对称布局，曲线层叠",
+            scene:"彝族传统服饰、祭祀织物、节庆用品、现代文创",
+            meaning:"象征光明、能量与生命力，寓意驱邪纳福、家族兴旺、自然崇拜",
+            imgUrl:"https://s41.ax1x.com/2026/03/21/penovdS.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:7,
+            name:"虎纹",
+            elements:"流线型躯体轮廓，火焰状斑纹与卷云纹交织，对称式动态造型",
+            scene:"彝族服饰、节庆道具、现代文创",
+            meaning:"象征勇猛无畏、守护安宁，寓意驱邪避灾、力量与威严，承载对自然力量的敬畏与对家族兴旺",
+            imgUrl:"https://s41.ax1x.com/2026/04/14/peDJjrn.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:8,
+            name:"火镰纹",
+            elements:"环形层叠结构，中心放射花蕊，外圈火焰状齿边，链环纹与四瓣花点缀，对称布局，色彩以红、黄、黑为主，对比强烈",
+            scene:"彝族服饰、火把节器物、现代文创",
+            meaning:"象征火种传承、光明不灭，寓意驱寒取暖、兴旺发达，承载对火神信仰的敬仰与对家族延续、生活红火的祈愿",
+            imgUrl:"https://s41.ax1x.com/2026/03/22/peulA8f.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:9,
+            name:"土司印章纹",
+            elements:"方形篆刻轮廓，回纹边框，内部网格与卷草纹交织，对称布局，色彩以粉、黄、蓝、黑为主，线条规整且富有秩序感",
+            scene:"彝族传统织物、土司文化纪念品、民俗仪式装饰",
+            meaning:"象征权力传承、秩序安定，寓意权威稳固、家族绵延，承载对土司制度的文化记忆与对家族兴旺、社会和谐的祈愿",
+            imgUrl:"https://s41.ax1x.com/2026/03/22/peulE28.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:10,
+            name:"龙纹",
+            elements:"双龙对称式（双首相对环绕中心的经典构图），卷云涡旋式（龙身、龙尾的曲线装饰），火纹/齿纹式（龙首、边缘的细节点缀），环形嵌套式（中心圆纹与龙形的组合结构），神兽具象式（融合彝族审美特征的龙首造型）",
+            scene:"象征神威护佑、驱邪纳吉，承载着对风调雨顺、部族平安的祈愿，同时暗含对自然力量的敬畏与崇拜，是彝族神话中守护家园、带来祥瑞的神圣符号",
+            meaning:"广泛用于彝族传统服饰（节日礼服、祭祀服饰、节庆盛装）、仪式用品（祭祀织物、节庆道具）及现代文创产品（非遗服饰、文旅周边、装饰纹样）中，是火把节、祭祀大典等重要场合的核心装饰纹样，也常出现在彝族文化相关的艺术创作与跨界设计中",
+            imgUrl:"https://s41.ax1x.com/2026/04/13/peDJtCF.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:11,
+            name:"牡丹纹",
+            elements:"重瓣层叠式（还原牡丹雍容盛放形态），花苞枝蔓式（环绕主花的辅助造型），渐变晕染式（红粉白过渡的色彩层次），中心对称式（主花居中、枝叶环绕的构图），平绣盘金结合式（塑造花瓣立体感的工艺特征）",
+            scene:"象征富贵圆满、繁荣昌盛，承载着对美好生活、富足家境的祈愿，同时蕴含对生命活力、人丁兴旺的追求，是民族文化交融背景下，彝族对自然馈赠与幸福生活的美好向往",
+            meaning:"广泛用于彝族传统服饰（新娘嫁衣、火把节礼服的领口、袖口、围腰、背带、头帕）、生活织物（挎包、枕套、桌布、被面）及现代文创产品（服饰、首饰、家居用品、伴手礼）中，是婚礼、火把节等重要节庆场合的核心装饰纹样，也常出现在非遗展览、文旅融合项目与跨界联名设计中",
+            imgUrl:"https://s41.ax1x.com/2026/04/13/peDJUgJ.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:12,
+            name:"八角纹",
+            elements:"以八角星为核心主体，由八条对称尖角构成八边形结构，常搭配黑、橙（红）等高对比色彩，并以菱形、方形几何元素辅助组合排列。",
+            scene:"广泛应用于彝族传统服饰、织物装饰，同时适配现代文创产品、民族风包装、文旅景区伴手礼及室内空间设计。",
+            meaning:"象征彝族对太阳的崇拜与光明的祈愿，以“八方”结构寓意八方来福、聚福纳祥，承载着民族文化认同与吉祥守护的内涵。",
+            imgUrl:"https://s41.ax1x.com/2026/04/13/peDJav9.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:13,
+            name:"马樱花纹",
+            elements:"簇状、饱满的马樱花为核心,马樱花也叫高山杜鹃是彝族的族花、圣花，是彝绣中最具代表性的花卉纹样，承载着彝族的精神信仰、文化记忆与美好祈愿。",
+            scene:"日常服饰绣于女性的围腰、头帕、挎包、服饰领口等部位，礼仪服饰新娘嫁衣、节日盛装的核心纹样，家居器物酒壶、餐具、挎包、荷包等",
+            meaning:"马樱花是彝族的“族花”，是彝族先民的始祖图腾，象征彝族的起源、血脉与民族精神，是彝族身份认同的视觉载体，爱情与幸福的象征，忠贞不渝的爱情、美满幸福的婚姻，吉祥与祈福的载体，守护平安、祛除灾祸、吉祥如意。",
+            imgUrl:"https://s41.ax1x.com/2026/04/13/peDJRvd.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:14,
+            name:"彝族飞鸟纹",
+            elements:"以鹰、凤凰等鸟类为原型，通过夸张线条与细腻针法呈现，常与日月、山川等自然元素组合，形成富有象征意义的图案。",
+            scene:"用于围腰、头帕、刺绣服饰等。",
+            meaning:"围腰飞鸟纹象征家族人丁兴旺，同时代表对自由生活的向往；鹰作为图腾，寄寓氏族繁衍兴盛的美好愿望，同时象征男子的勇气与责任。",
+            imgUrl:"https://s41.ax1x.com/2026/04/13/peDJ2gH.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:15,
+            name:"石榴花纹",
+            elements:"写实果实形象，或与缠枝纹，卷草纹搭配",
+            scene:"用于三角包配饰，服饰袖口等，多做辅助装饰",
+            meaning:"红如烈火，象征着彝族的热情与活力，同时也寓意着富贵与子孙满堂的美好愿望。",
+            imgUrl:"https://s41.ax1x.com/2026/04/13/peDJg8e.jpg",
+            faIcon:"bullhorn"
+        },
+        {
+            id:16,
+            name:"波浪纹",
+            elements:"波浪纹属于自然纹样，以水波的起伏流动形态为灵感来源，线条通常连绵、流畅而富有韵律感。",
+            scene:"波浪纹用于服饰边饰、围腰下摆或背带等部位，以模拟江河的形态，或作为其他主体纹样的配饰",
+            meaning:"波浪常象征生命的延续、柔韧的力量、生生不息",
+            imgUrl:"https://s41.ax1x.com/2026/04/13/peDJfKA.png",
+            faIcon:"bullhorn"
+        }
+    ];
+
+    let currentSearchKeyword = "";
+
+    // 通用卡片渲染函数
+    function renderCard(p, showDownload = false) {
+        const visualHtml = p.imgUrl ?
+            `<img src="${p.imgUrl}" alt="${p.name}纹样">` :
+            `<i class="fas fa-${p.faIcon} fa-3x"></i>`;
+
+        return `
+            <div class="pattern-card-base" data-id="${p.id}">
+                <div class="card-visual-area">
+                    ${visualHtml}
+                </div>
+                <div class="card-info">
+                    <div class="card-name">${p.name}</div>
+                    <div class="card-elements"><i class="fas fa-shapes"></i> ${p.elements}</div>
+                    <div class="card-meaning">${p.meaning}</div>
+                    ${showDownload ? `<button class="download-btn-sm" data-id="${p.id}" data-name="${p.name}"><i class="fas fa-download"></i> 付费下载</button>` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // 渲染首页精选（四大纹样）
+    function renderHomeFeatured() {
+        const container = document.getElementById("featuredGrid");
+        if (!container) return;
+        const featured = patterns.filter(p => [1,2,3,4].includes(p.id));
+        container.innerHTML = featured.map(p => renderCard(p, false)).join('');
+        attachCardClickEvents(container);
+    }
+
+    // 核心页渲染（带搜索过滤）
+    function renderCoreGrid(keyword = "") {
+        const grid = document.getElementById("patternGrid");
+        const feedbackDiv = document.getElementById("searchFeedbackArea");
+        const keywordSpan = document.getElementById("searchKeywordSpan");
+        if (!grid) return;
+
+        let filtered = [...patterns];
+        if (keyword.trim() !== "") {
+            const lowerKw = keyword.toLowerCase();
+            filtered = patterns.filter(p =>
+                p.name.toLowerCase().includes(lowerKw) ||
+                p.elements.toLowerCase().includes(lowerKw) ||
+                p.meaning.toLowerCase().includes(lowerKw)
+            );
+            feedbackDiv.style.display = "flex";
+            keywordSpan.innerHTML = `<i class="fas fa-search"></i> 搜索 “${escapeHtml(keyword)}” 找到 ${filtered.length} 个纹样`;
+        } else {
+            feedbackDiv.style.display = "none";
+        }
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#A47148;"><i class="fas fa-spa"></i> 暂无匹配纹样，试试其他关键词~</div>`;
+            return;
+        }
+
+        grid.innerHTML = filtered.map(p => renderCard(p, true)).join('');
+        attachCardClickEvents(grid);
+        // 绑定下载按钮事件
+        document.querySelectorAll('#patternGrid .download-btn-sm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const name = btn.getAttribute('data-name') || '纹样';
+                alert(`《${name}》付费下载功能即将开放，敬请期待数字授权服务。`);
+            });
+        });
+    }
+
+    // 给卡片容器内的所有卡片绑定点击跳转详情
+    function attachCardClickEvents(container) {
+        const cards = container.querySelectorAll('.pattern-card-base');
+        cards.forEach(card => {
+            const id = parseInt(card.getAttribute('data-id'));
+            if (id) {
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.download-btn-sm')) return;
+                    showDetailById(id);
+                    switchPage('detail');
+                });
+            }
+        });
+    }
+
+    // 详情展示
+    function showDetailById(id) {
+        const pattern = patterns.find(p => p.id === id);
+        if (!pattern) return;
+        const detailContainer = document.getElementById("detailContent");
+        const visualHtml = pattern.imgUrl ?
+            `<img src="${pattern.imgUrl}" alt="${pattern.name}纹样">` :
+            `<i class="fas fa-${pattern.faIcon} fa-5x"></i>`;
+
+        detailContainer.innerHTML = `
+            <div class="detail-visual">
+                <div style="text-align:center; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                    ${visualHtml}
+                </div>
+            </div>
+            <div class="detail-info">
+                <div class="detail-name">${pattern.name}</div>
+                <div class="detail-meta"><span class="detail-label">🧵 元素构成：</span>${pattern.elements}</div>
+                <div class="detail-meta"><span class="detail-label">🏺 使用场景：</span>${pattern.scene}</div>
+                <div class="detail-meta"><span class="detail-label">✨ 文化寓意：</span>${pattern.meaning}</div>
+                <div style="margin-top: 2rem;">
+                    <button class="download-btn-sm" data-id="${pattern.id}" data-name="${pattern.name}" style="background:#C23B22; color:white; border:none; padding:0.6rem 1.4rem;"><i class="fas fa-download"></i> 付费下载高清纹样</button>
+                    <button class="download-btn-sm" style="background:#F1E2D2; margin-left:1rem;" id="backToCoreBtn"><i class="fas fa-arrow-left"></i> 返回核心库</button>
+                </div>
+            </div>
+        `;
+        const downBtn = detailContainer.querySelector('.download-btn-sm');
+        if(downBtn) downBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const name = downBtn.getAttribute('data-name') || pattern.name;
+            alert(`《${name}》付费下载即将上线，支持商业授权。`);
+        });
+        const backBtn = detailContainer.querySelector('#backToCoreBtn');
+        if(backBtn) backBtn.addEventListener('click', () => switchPage('core'));
+    }
+
+    // 页面路由
+    const pages = {
+        home: document.getElementById("homePage"),
+        core: document.getElementById("corePage"),
+        detail: document.getElementById("detailPage"),
+        aux: document.getElementById("auxPage")
+    };
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    function switchPage(pageId) {
+        Object.values(pages).forEach(p => p.classList.remove("active-page"));
+        if (pages[pageId]) pages[pageId].classList.add("active-page");
+        navLinks.forEach(link => {
+            const linkPage = link.getAttribute("data-page");
+            if (linkPage === pageId) link.classList.add("active");
+            else link.classList.remove("active");
+        });
+        if (pageId === 'core') {
+            renderCoreGrid(currentSearchKeyword);
+        }
+        if (pageId === 'detail') {
+            const detailDiv = document.getElementById("detailContent");
+            if (detailDiv && (!detailDiv.innerHTML.trim() || detailDiv.querySelector('.placeholder-detail'))) {
+                detailDiv.innerHTML = `<div class="placeholder-detail">
+                    <i class="fas fa-hand-point-right fa-2x"></i>
+                    <p style="margin-top: 0.8rem;">请在「核心页」或首页「经典纹样」点击任意纹样卡片，查看完整寓意、元素构成及应用场景。</p>
+                </div>`;
+            }
+        }
+    }
+
+    // 搜索逻辑
+    function performSearch() {
+        const input = document.getElementById("globalSearchInput");
+        const keyword = input.value.trim();
+        currentSearchKeyword = keyword;
+        switchPage('core');
+    }
+    function clearSearch() {
+        document.getElementById("globalSearchInput").value = "";
+        currentSearchKeyword = "";
+        renderCoreGrid("");
+        switchPage('core');
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 导航事件绑定
+    navLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const pageId = link.getAttribute("data-page");
+            if (pageId) switchPage(pageId);
+        });
+    });
+
+    // 搜索按钮与清除
+    document.getElementById("globalSearchBtn").addEventListener("click", performSearch);
+    document.getElementById("globalSearchInput").addEventListener("keypress", (e) => { if (e.key === "Enter") performSearch(); });
+    document.addEventListener("click", (e) => { if (e.target.id === "clearSearchBtn") clearSearch(); });
+
+    // 登录模态框
+    const modal = document.getElementById("loginModal");
+    const showLogin = document.getElementById("showLoginBtn");
+    const closeModal = document.getElementById("closeModalBtn");
+    const doLogin = document.getElementById("doLoginBtn");
+    showLogin.addEventListener("click", () => modal.style.display = "flex");
+    closeModal.addEventListener("click", () => modal.style.display = "none");
+    doLogin.addEventListener("click", () => {
+        const user = document.getElementById("loginUser").value.trim();
+        alert(user ? `彝绣星河团队欢迎您，${user}！一同守护穿在身上的史书。` : "欢迎体验彝绣数据库！您以访客身份进入。");
+        modal.style.display = "none";
+    });
+    window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+
+    // 辅助页卡片点击
+    document.addEventListener("click", (e) => {
+        if(e.target.closest(".apply-card") && !e.target.closest(".download-btn-sm")) {
+            const text = e.target.closest(".apply-card")?.querySelector(".apply-text")?.innerText;
+            if(text) alert(`「${text}」尚未开通，更多可联系非遗保护中心。`);
+        }
+    });
+
+    // 初始化
+    renderHomeFeatured();
+    renderCoreGrid("");
+    switchPage("home");
+</script>
+</body>
+</html>
